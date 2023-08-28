@@ -199,3 +199,42 @@ func TestLoadOrderNumber_InvalidOrderNumber(t *testing.T) {
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
 }
+
+func TestLoadOrderNumber_BadMethod(t *testing.T) {
+	data := struct {
+		name       string
+		request    string
+		method     string
+		body       string
+		user       *models.UserData
+		statusCode int
+	}{
+		name:    "no orders",
+		request: "/api/user/orders",
+		method:  http.MethodPut,
+		body:    "123",
+		user: &models.UserData{
+			Login:        "test",
+			Password:     "",
+			PasswordHash: "",
+			Token:        "",
+		},
+		statusCode: http.StatusMethodNotAllowed,
+	}
+
+	r, ctrl, handler, _ := runTestServer(t)
+	defer ctrl.Finish()
+
+	ts := httptest.NewServer(r)
+	defer ts.Close()
+
+	err := authUser(data.user, handler)
+	require.NoError(t, err)
+
+	body := strings.NewReader(string(data.body))
+
+	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token)
+	defer resp.Body.Close()
+
+	assert.Equal(t, data.statusCode, resp.StatusCode)
+}
