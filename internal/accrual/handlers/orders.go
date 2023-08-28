@@ -37,6 +37,7 @@ func (m *HandlerDB) RegisterNewOrder(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
+		validNumber := luna.Valid(jsonOrder.OrderNumber)
 		if !validNumber {
 			log.Error("invalid order number")
 			res.WriteHeader(http.StatusUnprocessableEntity)
