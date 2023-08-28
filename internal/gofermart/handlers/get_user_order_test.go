@@ -15,13 +15,11 @@ import (
 
 func TestGetUserOrder_UnauthorizedUser(t *testing.T) {
 	data := struct {
-		name       string
 		request    string
 		method     string
 		user       models.UserData
 		statusCode int
 	}{
-		name:       "unauthorized user",
 		request:    "/api/user/orders",
 		method:     http.MethodGet,
 		user:       models.UserData{},
@@ -42,13 +40,11 @@ func TestGetUserOrder_UnauthorizedUser(t *testing.T) {
 
 func TestGetUserOrder_NoOrders(t *testing.T) {
 	data := struct {
-		name       string
 		request    string
 		method     string
 		user       *models.UserData
 		statusCode int
 	}{
-		name:    "no orders",
 		request: "/api/user/orders",
 		method:  http.MethodGet,
 		user: &models.UserData{
@@ -81,13 +77,11 @@ func TestGetUserOrder_NoOrders(t *testing.T) {
 
 func TestGetUserOrder_BadMethod(t *testing.T) {
 	data := struct {
-		name       string
 		request    string
 		method     string
 		user       *models.UserData
 		statusCode int
 	}{
-		name:    "no orders",
 		request: "/api/user/orders",
 		method:  http.MethodPost,
 		user: &models.UserData{
@@ -116,13 +110,11 @@ func TestGetUserOrder_BadMethod(t *testing.T) {
 
 func TestGetUserOrder_PositiveCase(t *testing.T) {
 	data := struct {
-		name       string
 		request    string
 		method     string
 		user       *models.UserData
 		statusCode int
 	}{
-		name:    "no orders",
 		request: "/api/user/orders",
 		method:  http.MethodGet,
 		user: &models.UserData{
