@@ -36,6 +36,13 @@ func (m *HandlerDB) RegisterNewOrder(ctx context.Context) http.HandlerFunc {
 			res.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		if !validNumber {
+			log.Error("invalid order number")
+			res.WriteHeader(http.StatusUnprocessableEntity)
+			return
+		}
+
 		//Записываем новый заказ в бд
 		err := m.Storage.LoadOrderInOrdersAccrualDB(ctx, jsonOrder)
 		if err != nil {
