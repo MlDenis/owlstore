@@ -100,7 +100,7 @@ func TestLoadOrderNumber_UnauthorizedUser(t *testing.T) {
 		name:       "unauthorized user",
 		request:    "/api/user/orders",
 		method:     http.MethodPost,
-		body:       "9278923470",
+		body:       "",
 		user:       models.UserData{},
 		statusCode: http.StatusUnauthorized,
 	}
@@ -113,9 +113,8 @@ func TestLoadOrderNumber_UnauthorizedUser(t *testing.T) {
 	defer ts.Close()
 
 	var token string
-	body := strings.NewReader(string(data.body))
 
-	resp := testRequest(t, ts, data.method, data.request, body, token)
+	resp := testRequest(t, ts, data.method, data.request, nil, token)
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
