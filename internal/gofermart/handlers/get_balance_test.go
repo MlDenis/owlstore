@@ -30,7 +30,7 @@ func TestGetBalance_UnauthorizedUser(t *testing.T) {
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -70,7 +70,7 @@ func TestGetBalance_EmptyUser(t *testing.T) {
 		WithdrawSum: 0,
 	}, nil)
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -111,7 +111,7 @@ func TestGetBalance_PositiveCase(t *testing.T) {
 		WithdrawSum: 12,
 	}, nil)
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -145,7 +145,7 @@ func TestGetBalance_BadMethod(t *testing.T) {
 	err := authUser(data.user, handler)
 	require.NoError(t, err)
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)

@@ -16,13 +16,13 @@ import (
 )
 
 func testRequest(t *testing.T, ts *httptest.Server, method,
-	path string, body io.Reader, token string) *http.Response {
+	path string, body io.Reader, token string, contentType string) *http.Response {
 
 	req, err := http.NewRequest(method, ts.URL+path, body)
 	req.Close = true
 	req.Header.Add("Connection", "keep-alive")
 	req.Header.Add("User-Agent", "PostmanRuntime/7.32.3")
-	req.Header.Add("Content-Type", "text/plain")
+	req.Header.Add("Content-Type", contentType)
 	req.Header.Add(models.HeaderHTTP, token)
 
 	require.NoError(t, err)

@@ -54,7 +54,7 @@ func TestLoadOrderNumber_OrderAccepted(t *testing.T) {
 
 	storeInterface.EXPECT().LoadOrderInDB(ctx, order)
 
-	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -114,7 +114,7 @@ func TestLoadOrderNumber_UnauthorizedUser(t *testing.T) {
 
 	var token string
 
-	resp := testRequest(t, ts, data.method, data.request, nil, token)
+	resp := testRequest(t, ts, data.method, data.request, nil, token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -154,7 +154,7 @@ func TestLoadOrderNumber_WrongOrderNumber(t *testing.T) {
 	err := authUser(&data.user, handler)
 	require.NoError(t, err)
 
-	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -194,7 +194,7 @@ func TestLoadOrderNumber_InvalidOrderNumber(t *testing.T) {
 	err := authUser(&data.user, handler)
 	require.NoError(t, err)
 
-	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -233,7 +233,7 @@ func TestLoadOrderNumber_BadMethod(t *testing.T) {
 
 	body := strings.NewReader(string(data.body))
 
-	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, body, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)

@@ -32,7 +32,7 @@ func TestGetUserOrder_UnauthorizedUser(t *testing.T) {
 	ts := httptest.NewServer(r)
 	defer ts.Close()
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -69,7 +69,7 @@ func TestGetUserOrder_NoOrders(t *testing.T) {
 
 	storeInterface.EXPECT().GetUserOrders(ctx, data.user).Return([]models.Orders{}, pkg.NoOrders)
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -102,7 +102,7 @@ func TestGetUserOrder_BadMethod(t *testing.T) {
 	err := authUser(data.user, handler)
 	require.NoError(t, err)
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
@@ -146,7 +146,7 @@ func TestGetUserOrder_PositiveCase(t *testing.T) {
 		},
 	}, nil)
 
-	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token)
+	resp := testRequest(t, ts, data.method, data.request, nil, data.user.Token, "text/plain")
 	defer resp.Body.Close()
 
 	assert.Equal(t, data.statusCode, resp.StatusCode)
