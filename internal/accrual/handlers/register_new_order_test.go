@@ -86,7 +86,7 @@ func TestRegisterNewOrder_InvalidJSON(t *testing.T) {
 	assert.Equal(t, data.statusCode, resp.StatusCode)
 }
 
-func TestRegisterNewOrder_InvalidORderNumber(t *testing.T) {
+func TestRegisterNewOrder_InvalidOrderNumber(t *testing.T) {
 	data := struct {
 		request    string
 		method     string
