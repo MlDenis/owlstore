@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"os"
+	"strconv"
 )
 
 type FlagVar struct {
@@ -10,6 +11,7 @@ type FlagVar struct {
 	databaseURI         string
 	acuralSystemAddress string
 	migrationsDir       string
+	rateLimit           int
 }
 
 func NewFlagVarStruct() *FlagVar {
@@ -21,8 +23,9 @@ func (f *FlagVar) parseFlags() error {
 	// парсим переданные серверу аргументы в зарегистрированные переменные
 	flag.StringVar(&f.runAddr, "a", "localhost:8080", "address and port to run server")
 	flag.StringVar(&f.databaseURI, "d", "", "database connection address")
-	flag.StringVar(&f.acuralSystemAddress, "r", "", "address of the accrual system")
+	flag.StringVar(&f.acuralSystemAddress, "r", "localhost:8081", "address of the accrual system")
 	flag.StringVar(&f.migrationsDir, "m", "", "migrations to db")
+	flag.IntVar(&f.rateLimit, "l", 10, "number of source related materials on the server")
 	flag.Parse()
 
 	if envRunAddr, ok := os.LookupEnv("RUN_ADDRESS"); ok {
@@ -39,6 +42,14 @@ func (f *FlagVar) parseFlags() error {
 
 	if envMigrationsDir, ok := os.LookupEnv("MIGRATIONS_DIR"); ok {
 		f.migrationsDir = envMigrationsDir
+	}
+
+	if envRateLimit, ok := os.LookupEnv("RATE_LIMIT"); ok {
+		envRateLimitInt, err := strconv.Atoi(envRateLimit)
+		if err != nil {
+			return err
+		}
+		f.rateLimit = envRateLimitInt
 	}
 	return nil
 }

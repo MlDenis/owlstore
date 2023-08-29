@@ -69,3 +69,25 @@ func (pgdb *PostgresDB) EditBalanceWithdraw(ctx context.Context, userlogin strin
 
 	return tx.Commit(ctx)
 }
+
+// Меняем баланс при начислении
+func (pgdb *PostgresDB) EditBalanceAccrual(ctx context.Context, userlogin string, accrual int64) error {
+
+	tx, err := pgdb.pool.Begin(ctx)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE public.balance set sumaccrual =sumaccrual+ $1 WHERE userlogin=$2`,
+		accrual, userlogin,
+	)
+	if err != nil {
+		log.Error(err)
+		tx.Rollback(ctx)
+		return err
+	}
+
+	return tx.Commit(ctx)
+}

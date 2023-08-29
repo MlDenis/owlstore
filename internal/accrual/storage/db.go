@@ -21,10 +21,10 @@ type PostgresDB struct {
 
 // инизиацлизация бд
 func InitDB(configDB string, migratePath string) (*PostgresDB, error) {
-	err := runMigrations(configDB, migratePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to run DB migrations: %w", err)
-	}
+	// err := runMigrations(configDB, migratePath)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to run DB migrations: %w", err)
+	// }
 	pool, err := pgxpool.New(context.Background(), configDB)
 	if err == nil {
 		return &PostgresDB{pool: pool}, nil

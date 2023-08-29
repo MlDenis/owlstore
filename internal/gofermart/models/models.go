@@ -14,12 +14,17 @@ type UserData struct {
 
 // Структура заказов для пользователя
 type Orders struct {
-	UserLogin   string    `json:"user_login"`
+	UserLogin string `json:"user_login"`
+	OrdersOnly
+	Accrual  int64 `json:"accrual"`
+	Withdraw int64 `json:"withdraw"`
+}
+
+type OrdersOnly struct {
 	OrderNumber int64     `json:"order_number"`
 	OrderDate   time.Time `json:"order_date"`
 	StatusOrder string    `json:"status_order"`
-	Accrual     int64     `json:"accrual"`
-	Withdraw    int64     `json:"withdraw"`
+	UserLogin   string    `json:"user_login"`
 }
 
 // Структура баланса пользователя
@@ -40,6 +45,11 @@ type WithdrawOrder struct {
 	Order       int64     `json:"order"`
 	Sum         int64     `json:"sum"`
 	ProcessedAt time.Time `json:"processed_at,omitempty"`
+}
+type OrderResp struct {
+	OrderNumber int64  `json:"order_number"`
+	StatusOrder string `json:"status_order"`
+	Accrual     int64  `json:"accrual"`
 }
 
 const (

@@ -45,16 +45,15 @@ func (pgdb *PostgresDB) LoadOrderInDB(ctx context.Context, orders *models.Orders
 
 }
 
-func (pgdb *PostgresDB) GetUserOrders(ctx context.Context, user *models.UserData) ([]models.Orders, error) {
-	orders := []models.Orders{}
-	rows, err := pgdb.pool.Query(ctx, `SELECT ordernumber, orderdate, statusorder FROM public.orders WHERE userlogin = $1`, user.Login) // дописать accrual, withdraw когда сделаем систему
+func (pgdb *PostgresDB) GetUserOrders(ctx context.Context, login string) ([]models.OrdersOnly, error) {
+	orders := []models.OrdersOnly{}
+	rows, err := pgdb.pool.Query(ctx, `SELECT ordernumber, orderdate, statusorder FROM public.orders WHERE userlogin = $1`, login) // дописать accrual, withdraw когда сделаем систему
 	if err != nil {
 		return orders, err
 	}
 
 	for rows.Next() {
-		order := models.Orders{}
-		order.UserLogin = user.Login
+		order := models.OrdersOnly{}
 		err := rows.Scan(&order.OrderNumber, &order.OrderDate, &order.StatusOrder)
 		if err != nil {
 			return orders, err
@@ -95,4 +94,57 @@ func (pgdb *PostgresDB) GetWithdrawalsDB(ctx context.Context, login string) ([]m
 	}
 
 	return withdrawals, nil
+}
+
+func (pgdb *PostgresDB) GetAllOrders(ctx context.Context) ([]models.OrdersOnly, error) {
+	tx, err := pgdb.pool.Begin(ctx)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	orders := []models.OrdersOnly{}
+	rows, err := pgdb.pool.Query(ctx, `SELECT ordernumber, orderdate, statusorder,userlogin FROM public.orders WHERE statusorder=$1 or statusorder=$2`, models.NewOrder, models.ProcessingOrder) // дописать accrual, withdraw когда сделаем систему
+	if err != nil {
+		return orders, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		order := models.OrdersOnly{}
+		err := rows.Scan(&order.OrderNumber, &order.OrderDate, &order.StatusOrder, &order.UserLogin)
+		if err != nil {
+			return orders, err
+		}
+		orders = append(orders, order)
+	}
+
+	if len(orders) == 0 {
+		return orders, pkg.NoOrders
+	}
+	if err != nil {
+		log.Error(err)
+		tx.Rollback(ctx)
+		return nil, err
+	}
+
+	return orders, tx.Commit(ctx)
+
+}
+
+func (pgdb *PostgresDB) EditStatusAndAccrualOrder(ctx context.Context, status string, accrual, ordernumber int64) error {
+	tx, err := pgdb.pool.Begin(ctx)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE public.orders set accrual = $1, statusorder = $2 WHERE ordernumber=$3`,
+		accrual, status, ordernumber,
+	)
+	if err != nil {
+		log.Error(err)
+		tx.Rollback(ctx)
+		return err
+	}
+	return tx.Commit(ctx)
 }

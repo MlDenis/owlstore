@@ -102,7 +102,7 @@ func (m *HandlerDB) GetUserOrder(ctx context.Context) http.HandlerFunc {
 			return
 		}
 
-		orders, err := m.Storage.GetUserOrders(ctx, userData)
+		orders, err := m.Storage.GetUserOrders(ctx, userData.Login)
 		if err != nil {
 			if errors.Is(err, pkg.NoOrders) {
 				res.WriteHeader(http.StatusNoContent)

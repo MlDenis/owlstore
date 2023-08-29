@@ -2,7 +2,6 @@ package accrualcalculate
 
 import (
 	"context"
-	"fmt"
 	"regexp"
 	"time"
 
@@ -10,8 +9,6 @@ import (
 	"github.com/MlDenis/internal/accrual/storage"
 	log "github.com/sirupsen/logrus"
 )
-
-const WorkerNumber = 10
 
 // WorkerPool принимает канал данных, порождает 10 горутин
 func WorkerPool(ctx context.Context, s storage.DBInterfaceOrdersAccrual, rateLimit int) {
@@ -43,11 +40,13 @@ func OrdersGoodsGorutine(ctx context.Context, ordersChan chan models.GoodsWithRe
 	rewards, err := s.GetAllRewards(ctx)
 	if err != nil {
 		log.Error("error in get rewards from db: ", err)
+		goodsWithReward.OrderNumber = 0
 		return
 	}
 	ordersWithGoods, err := s.GetAllOrdersAndGoods(ctx)
 	if err != nil {
 		log.Error("error in get orders from db: ", err)
+		goodsWithReward.OrderNumber = 0
 		return
 	}
 	goodsWithReward.Reward = rewards
@@ -59,7 +58,6 @@ func OrdersGoodsGorutine(ctx context.Context, ordersChan chan models.GoodsWithRe
 				return
 			}
 			goodsWithReward.OrderForRegister = ordersWithGoods[i]
-			fmt.Println(goodsWithReward)
 			ordersChan <- goodsWithReward
 		}
 	}
@@ -69,6 +67,9 @@ func findMatch(ctx context.Context, orderAndReward1 chan models.GoodsWithReward,
 
 	var accraulSum int64 = 0
 	orderAndReward := <-orderAndReward1
+	if orderAndReward.OrderNumber == 0 {
+		return
+	}
 	for _, reward := range orderAndReward.Reward {
 		for _, goods := range orderAndReward.Goods {
 			matched, err := regexp.MatchString(reward.Match, goods.Description)
@@ -87,7 +88,6 @@ func findMatch(ctx context.Context, orderAndReward1 chan models.GoodsWithReward,
 			}
 		}
 	}
-	fmt.Println(orderAndReward.OrderNumber, len(orderAndReward.Reward), len(orderAndReward.Goods))
 	err := s.LoadAccrualStatusOrder(ctx, models.ProcessedOrder, orderAndReward.OrderNumber, accraulSum)
 	if err != nil {
 		log.Error("error in add orders from db: ", err)
